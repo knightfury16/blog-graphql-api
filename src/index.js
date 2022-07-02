@@ -9,7 +9,7 @@ const users = [
   },
   {
     id: 2,
-    name: 'Agastya_Adiga5',
+    name: 'Agastya_Adiga',
     email: 'Chitramala21@example.net',
     age: 23
   },
@@ -23,21 +23,51 @@ const users = [
 const posts = [
   {
     id: 1,
-    title: 'Chartreux',
-    body: 'My dog',
-    published: true
+    title: 'Learn Apple',
+    body: 'Apple is good for dog',
+    published: true,
+    author: 1
   },
   {
     id: 2,
-    title: 'Paisley Terrier',
-    body: 'My dot',
-    published: false
+    title: 'Ball',
+    body: 'New type of ball game',
+    published: false,
+    author: 3
   },
   {
     id: 3,
-    title: 'Armenian Gampr dog',
-    body: 'My dog',
-    published: true
+    title: 'Cat',
+    body: 'Cat always land on feet',
+    published: true,
+    author: 1
+  }
+];
+
+const comments = [
+  {
+    id: 12,
+    text: 'Wow!',
+    author: 1,
+    post: 1
+  },
+  {
+    id: 31,
+    text: 'Nice Dog',
+    author: 2,
+    post: 3
+  },
+  {
+    id: 44,
+    text: 'Does he bite',
+    author: 1,
+    post: 2
+  },
+  {
+    id: 11,
+    text: 'Cute!',
+    author: 2,
+    post: 1
   }
 ];
 // Schema
@@ -53,12 +83,17 @@ const typeDefs = gql`
 
     "Returns all the post"
     posts(query: String): [Post!]!
+
+    "returns all the comments"
+    comments: [Comment!]!
   }
   type User {
     id: ID!
     name: String!
     email: String!
     age: Int
+    posts: [Post!]!
+    comments: [Comment!]!
   }
 
   type Post {
@@ -66,6 +101,15 @@ const typeDefs = gql`
     title: String!
     body: String!
     published: Boolean!
+    author: User!
+    comments: [Comment!]!
+  }
+
+  type Comment {
+    id: ID!
+    text: String!
+    author: User!
+    post: Post!
   }
 `;
 
@@ -89,6 +133,9 @@ const resolvers = {
         return isTitleMtch || isBodyMtch;
       });
     },
+    comments: () => {
+      return comments;
+    },
     me: () => ({
       id: 'abc123',
       name: 'Mike',
@@ -101,6 +148,36 @@ const resolvers = {
       body: 'Body of my first blog',
       published: true
     })
+  },
+  Post: {
+    author: (parent, args, ctx, info) => {
+      return users.find(user => {
+        return user.id === parent.author;
+      });
+    },
+    comments: parent => {
+      return comments.filter(comment => comment.post === parent.id);
+    }
+  },
+  User: {
+    posts: parent => {
+      return posts.filter(post => {
+        return post.author === parent.id;
+      });
+    },
+    comments: parent => {
+      return comments.filter(comment => comment.author === parent.id);
+    }
+  },
+  Comment: {
+    author: parent => {
+      return users.find(user => {
+        return user.id === parent.author;
+      });
+    },
+    post: parent => {
+      return posts.find(post => post.id === parent.post);
+    }
   }
 };
 
