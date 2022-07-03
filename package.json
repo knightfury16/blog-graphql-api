@@ -5,19 +5,20 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon ./public/scripts/index.js",
-    "build": "babel src --out-dir public/scripts --presets env --watch"
+    "build": "babel src --out-dir=public/scripts --presets=@babel/preset-env --watch"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "apollo-server": "^3.9.0",
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.3",
-    "babel-preset-env": "^1.7.0",
-    "graphql": "^16.5.0"
+    "graphql": "^16.5.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@babel/cli": "^7.18.6",
+    "@babel/core": "^7.18.6",
+    "@babel/preset-env": "^7.18.6",
     "nodemon": "^2.0.18"
   }
 }
