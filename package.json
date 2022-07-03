@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon ./public/scripts/index.js",
+    "start": "nodemon --ext js,graphql ./public/scripts/index.js",
     "build": "babel src --out-dir=public/scripts --presets=@babel/preset-env --delete-dir-on-start --copy-files --watch"
   },
   "keywords": [],
