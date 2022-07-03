@@ -5,12 +5,14 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon ./public/scripts/index.js",
-    "build": "babel src --out-dir=public/scripts --presets=@babel/preset-env --watch"
+    "build": "babel src --out-dir=public/scripts --presets=@babel/preset-env --delete-dir-on-start --copy-files --watch"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@graphql-tools/graphql-file-loader": "^7.4.0",
+    "@graphql-tools/load": "^7.7.0",
     "apollo-server": "^3.9.0",
     "graphql": "^16.5.0",
     "uuid": "^8.3.2"
