@@ -11,12 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@graphql-tools/graphql-file-loader": "^7.4.0",
-    "@graphql-tools/load": "^7.7.0",
     "@graphql-yoga/node": "^2.11.2",
-    "apollo-server": "^3.9.0",
     "graphql": "^16.5.0",
-    "graphql-subscriptions": "^2.0.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

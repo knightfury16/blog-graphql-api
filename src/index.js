@@ -1,8 +1,6 @@
-import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
-import { loadSchemaSync } from '@graphql-tools/load';
-import { PubSub } from 'graphql-subscriptions';
+import { createPubSub, createServer } from '@graphql-yoga/node';
+import { readFileSync } from 'fs';
 import { join } from 'path';
-import { createServer } from '@graphql-yoga/node';
 
 //local imports
 import db from './db';
@@ -13,15 +11,11 @@ import Query from './resolvers/Query';
 import Subscription from './resolvers/Subscription';
 import User from './resolvers/User';
 
-const typeDefs = loadSchemaSync(join(__dirname, './schema.graphql'), {
-  loaders: [new GraphQLFileLoader()]
-});
-
-const pubsub = new PubSub();
+const pubsub = createPubSub();
 // Create your server
 const server = createServer({
   schema: {
-    typeDefs,
+    typeDefs: readFileSync(join(__dirname, './schema.graphql'), 'utf-8'),
     resolvers: {
       Query,
       Mutation,
