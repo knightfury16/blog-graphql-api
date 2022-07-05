@@ -1,9 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
+import { GraphQLYogaError } from '@graphql-yoga/node';
 
 export default {
   createUser: (parent, args, { db }) => {
     const isEmailTaken = db.users.some(user => user.email === args.data.email);
-    if (isEmailTaken) throw new Error('Email Taken!!');
+    if (isEmailTaken) throw new GraphQLYogaError('Email Taken!!');
 
     const user = {
       id: uuidv4(),
@@ -17,7 +18,7 @@ export default {
   deleteUser: (_, args, { db }) => {
     const userIndex = db.users.findIndex(user => user.id === args.id);
 
-    if (userIndex == -1) throw new Error('User not found!');
+    if (userIndex == -1) throw new GraphQLYogaError('User not found!');
 
     db.posts = db.posts.filter(post => {
       const match = post.author === args.id;
@@ -39,12 +40,12 @@ export default {
 
     const user = db.users.find(user => user.id === id);
 
-    if (!user) throw new Error('User not Found!');
+    if (!user) throw new GraphQLYogaError('User not Found!');
 
     if (typeof data.email === 'string') {
       const emailTaken = db.users.some(user => user.email === data.email);
 
-      if (emailTaken) throw new Error('Email Taken');
+      if (emailTaken) throw new GraphQLYogaError('Email Taken');
 
       user.email = data.email;
     }
@@ -61,7 +62,7 @@ export default {
   createPost: (parent, args, { db, pubsub }) => {
     const userExits = db.users.some(user => user.id === args.data.author);
 
-    if (!userExits) throw new Error('User Not Found!');
+    if (!userExits) throw new GraphQLYogaError('User Not Found!');
 
     const post = {
       id: uuidv4(),
@@ -83,7 +84,7 @@ export default {
   deletePost: (_, args, { db, pubsub }) => {
     const postIndex = db.posts.findIndex(post => post.id === args.id);
 
-    if (postIndex == -1) throw new Error('Post not found!');
+    if (postIndex == -1) throw new GraphQLYogaError('Post not found!');
 
     db.comments = db.comments.filter(comment => comment.post !== args.id);
 
@@ -104,7 +105,7 @@ export default {
     const post = db.posts.find(post => post.id === id);
     const originalPost = { ...post };
 
-    if (!post) throw new Error('Post not Found');
+    if (!post) throw new GraphQLYogaError('Post not Found');
 
     if (typeof data.title === 'string') {
       post.title = data.title;
@@ -146,12 +147,12 @@ export default {
   },
   createComment: (_, args, { db, pubsub }) => {
     const userExits = db.users.some(user => user.id === args.data.author);
-    if (!userExits) throw new Error('User not found!');
+    if (!userExits) throw new GraphQLYogaError('User not found!');
 
     const postExits = db.posts.find(post => post.id === args.data.post);
-    if (!postExits) throw new Error('Post not found!');
+    if (!postExits) throw new GraphQLYogaError('Post not found!');
 
-    if (!postExits.published) throw new Error('Post not published!');
+    if (!postExits.published) throw new GraphQLYogaError('Post not published!');
 
     const comment = {
       id: uuidv4(),
@@ -172,7 +173,7 @@ export default {
   deleteComment: (_, args, { db, pubsub }) => {
     const commentIndex = db.comments.findIndex(comment => comment.id === args.id);
 
-    if (commentIndex === -1) throw new Error('Comment not found!');
+    if (commentIndex === -1) throw new GraphQLYogaError('Comment not found!');
 
     const [deletedComment] = db.comments.splice(commentIndex, 1);
 
@@ -188,7 +189,7 @@ export default {
   updateComment: (_, { id, data }, { db, pubsub }) => {
     const comment = db.comments.find(comment => comment.id === id);
 
-    if (!comment) throw new Error('Comment not Found');
+    if (!comment) throw new GraphQLYogaError('Comment not Found');
     if (typeof data.text === 'string') {
       comment.text = data.text;
     }
