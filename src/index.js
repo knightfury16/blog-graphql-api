@@ -28,7 +28,8 @@ const server = createServer({
   context: {
     db,
     pubsub
-  }
+  },
+  maskedErrors: false
 });
 // start the server and explore http://localhost:4000/graphql
 server.start();
