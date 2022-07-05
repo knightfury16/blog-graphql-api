@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 export default {
   createUser: (parent, args, { db }) => {
     const isEmailTaken = db.users.some(user => user.email === args.data.email);
-    // if (isEmailTaken) throw new Error('Email Taken!!');
+    if (isEmailTaken) throw new Error('Email Taken!!');
 
     const user = {
       id: uuidv4(),
@@ -160,26 +160,45 @@ export default {
 
     db.comments.push(comment);
     // console.log(`comment ${args.data.post}`);
-    pubsub.publish(`comment ${args.data.post}`, { comment });
+    pubsub.publish(`comment ${args.data.post}`, {
+      comment: {
+        mutation: 'CREATED',
+        data: comment
+      }
+    });
 
     return comment;
   },
-  deleteComment: (_, args, { db }) => {
+  deleteComment: (_, args, { db, pubsub }) => {
     const commentIndex = db.comments.findIndex(comment => comment.id === args.id);
 
     if (commentIndex === -1) throw new Error('Comment not found!');
 
-    const deletedComments = db.comments.splice(commentIndex, 1);
+    const [deletedComment] = db.comments.splice(commentIndex, 1);
 
-    return deletedComments[0];
+    pubsub.publish(`comment ${deletedComment.post}`, {
+      comment: {
+        mutation: 'DELETED',
+        data: deletedComment
+      }
+    });
+
+    return deletedComment;
   },
-  updateComment: (_, { id, data }, { db }) => {
+  updateComment: (_, { id, data }, { db, pubsub }) => {
     const comment = db.comments.find(comment => comment.id === id);
 
     if (!comment) throw new Error('Comment not Found');
     if (typeof data.text === 'string') {
       comment.text = data.text;
     }
+
+    pubsub.publish(`comment ${comment.post}`, {
+      comment: {
+        mutation: 'Updated',
+        data: comment
+      }
+    });
     return comment;
   }
 };
