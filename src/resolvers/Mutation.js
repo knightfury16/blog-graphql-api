@@ -100,7 +100,7 @@ export default {
     }
     return post;
   },
-  createComment: (_, args, { db }) => {
+  createComment: (_, args, { db, pubsub }) => {
     const userExits = db.users.some(user => user.id === args.data.author);
     if (!userExits) throw new Error('User not found!');
 
@@ -115,6 +115,8 @@ export default {
     };
 
     db.comments.push(comment);
+    // console.log(`comment ${args.data.post}`);
+    pubsub.publish(`comment ${args.data.post}`, { comment });
 
     return comment;
   },
