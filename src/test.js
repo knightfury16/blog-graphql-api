@@ -4,9 +4,18 @@ const prisma = new PrismaClient();
 
 async function main() {
   // ... you will write your Prisma Client queries here
-  const user = await prisma.user.findMany({
-    include: {
-      posts: true
+  // const user = await prisma.user.findMany({
+  //   include: {
+  //     posts: true
+  //   }
+  // });
+
+  const post = await prisma.post.update({
+    where: {
+      id: '653d72e4-5e34-4716-9b88-2d1385264fd8'
+    },
+    data: {
+      title: 'Updating my first post'
     }
   });
 
@@ -21,7 +30,7 @@ async function main() {
   //     }
   //   }
   // });
-  console.dir(user, { depth: null });
+  console.dir(post, { depth: null });
   // console.log(user);
 }
 

@@ -31,10 +31,12 @@ model Post {
 }
 
 model Comment {
-  id     String @id @default(uuid())
-  text   String
-  author User   @relation(fields: [userId], references: [id])
-  post   Post   @relation(fields: [postId], references: [id])
-  userId String
-  postId String
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  text      String
+  author    User     @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
+  userId    String
+  postId    String
 }
