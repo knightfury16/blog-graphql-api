@@ -4,33 +4,25 @@ const prisma = new PrismaClient();
 
 async function main() {
   // ... you will write your Prisma Client queries here
-  await prisma.user.create({
-    data: {
-      email: 'suhaib@gmail.com',
-      name: 'Suhaib Ahmed',
-      posts: {
-        create: {
-          title: 'my first blog post',
-          content: 'this is how you make api',
-          published: true
-        }
-      },
-      profile: {
-        create: {
-          bio: 'i like turtle'
-        }
-      }
-    }
-  });
-
-  const allUser = await prisma.user.findMany({
+  const user = await prisma.user.findMany({
     include: {
-      posts: true,
-      profile: true
+      posts: true
     }
   });
 
-  console.log(allUser);
+  // const post = await prisma.post.create({
+  //   data: {
+  //     title: 'My first post',
+  //     body: 'Body of my first post',
+  //     author: {
+  //       connect: {
+  //         id: '69dce6eb-a65f-48b8-86da-efd0149e28b3'
+  //       }
+  //     }
+  //   }
+  // });
+  console.dir(user, { depth: null });
+  // console.log(user);
 }
 
 main()
