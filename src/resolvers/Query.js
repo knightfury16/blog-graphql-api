@@ -56,9 +56,12 @@ const Query = {
       ...select
     });
   },
-  comments: (_, __, { db }) => {
-    return db.comments;
+  comments: async (_, __, { db }, info) => {
+    const select = new PrismaSelect(info).value;
+
+    return await prisma.comment.findMany({ ...select });
   },
+
   me: () => ({
     id: 'abc123',
     name: 'Mike',

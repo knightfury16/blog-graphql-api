@@ -24,42 +24,40 @@ async function main() {
   //   });
   // }
 
+  // await prisma.comment.create({
+  //   data:{
+  //     text:"",
+  //     author:"",
+  //     post:""
+  //   }
+  // })
+
   // ... you will write your Prisma Client queries here
-  const user = await prisma.user.findMany({
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      posts: { select: { id: true, title: true } }
-    }
-  });
+  const users = await prisma.user.findMany({});
+  const posts = await prisma.post.findMany();
 
-  // const user = await prisma.user.delete({
-  //   where: {
-  //     id: '69dce6eb-a65f-48b8-86da-efd0149e28b3'
-  //   }
-  // });
-  // const post = await prisma.post.update({
-  //   where: {
-  //     id: '653d72e4-5e34-4716-9b88-2d1385264fd8'
-  //   },
-  //   data: {
-  //     title: 'Updating my first post'
-  //   }
-  // });
+  for (let index = 0; index < 10; index++) {
+    const user = users[faker.datatype.number({ max: 9 })];
+    const post = posts[faker.datatype.number({ max: 9 })];
 
-  // const post = await prisma.post.create({
-  //   data: {
-  //     title: 'My first post',
-  //     body: 'Body of my first post',
-  //     author: {
-  //       connect: {
-  //         id: '69dce6eb-a65f-48b8-86da-efd0149e28b3'
-  //       }
-  //     }
-  //   }
-  // });
-  console.dir(user, { depth: null });
+    await prisma.comment.create({
+      data: {
+        text: faker.lorem.sentence(),
+        author: {
+          connect: {
+            id: user.id
+          }
+        },
+        post: {
+          connect: {
+            id: post.id
+          }
+        }
+      }
+    });
+  }
+  const comments = await prisma.comment.findMany();
+  console.dir(comments, { depth: null });
   // console.log(user);
 }
 
