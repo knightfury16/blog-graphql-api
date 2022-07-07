@@ -1,21 +1,40 @@
 import prisma from '../prisma'; //Because I'm loosing all context if I access it by ctx
+import { PrismaSelect } from '@paljs/plugins';
 
 const Query = {
   users: async (_, args, { db }, info) => {
-    if (!args.query) return await prisma.user.findMany();
+    const select = new PrismaSelect(info).value;
+
+    if (!args.query)
+      return await prisma.user.findMany({
+        ...select
+      });
 
     return await prisma.user.findMany({
       where: {
-        name: {
-          contains: args.query,
-          mode: 'insensitive'
-        }
-      }
+        OR: [
+          {
+            name: {
+              contains: args.query,
+              mode: 'insensitive'
+            }
+          },
+          {
+            email: {
+              contains: args.query,
+              mode: 'insensitive'
+            }
+          }
+        ]
+      },
+      ...select
     });
   },
 
   posts: async (parent, args, { db }, info) => {
-    if (!args.query) return await prisma.post.findMany();
+    const select = new PrismaSelect(info).value;
+
+    if (!args.query) return await prisma.post.findMany({ ...select });
 
     return await prisma.post.findMany({
       where: {
@@ -33,7 +52,8 @@ const Query = {
             }
           }
         ]
-      }
+      },
+      ...select
     });
   },
   comments: (_, __, { db }) => {
