@@ -9,28 +9,20 @@ export default {
       return user;
     } catch (error) {
       if (error.code === 'P2002') throw new GraphQLYogaError('Email Taken!');
-      throw new GraphQLYogaError('Error!!');
+      throw new GraphQLYogaError('Error1!!');
     }
   },
-  deleteUser: (_, args, { db }) => {
-    const userIndex = db.users.findIndex(user => user.id === args.id);
-
-    if (userIndex == -1) throw new GraphQLYogaError('User not found!');
-
-    db.posts = db.posts.filter(post => {
-      const match = post.author === args.id;
-
-      if (match) {
-        db.comments = db.comments.filter(comment => comment.post != post.id);
-      }
-      return !match;
-    });
-
-    db.comments = db.comments.filter(comment => comment.author != args.id);
-
-    const deletedUsers = db.users.splice(userIndex, 1);
-
-    return deletedUsers[0];
+  deleteUser: async (_, args, { db }) => {
+    try {
+      return await prisma.user.delete({
+        where: {
+          id: args.id
+        }
+      });
+    } catch (error) {
+      if (error.code === 'P2025') throw new GraphQLYogaError('User not found.');
+      throw new GraphQLYogaError('Error2!!');
+    }
   },
   updateUser: (parent, args, { db }) => {
     const { id, data } = args;
