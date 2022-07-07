@@ -150,23 +150,32 @@ export default {
     }
     return post;
   },
-  createComment: (_, args, { db, pubsub }) => {
-    const userExits = db.users.some(user => user.id === args.data.author);
-    if (!userExits) throw new GraphQLYogaError('User not found!');
+  createComment: async (_, { data }, { db, pubsub }) => {
+    const user = await prisma.user.findUnique({ where: { id: data.author } });
+    if (!user) throw new GraphQLYogaError('User not found!');
 
-    const postExits = db.posts.find(post => post.id === args.data.post);
-    if (!postExits) throw new GraphQLYogaError('Post not found!');
+    const post = await prisma.post.findUnique({ where: { id: data.post } });
+    if (!post) throw new GraphQLYogaError('Post not found!');
 
-    if (!postExits.published) throw new GraphQLYogaError('Post not published!');
+    if (!post.published) throw new GraphQLYogaError('Post not published!');
 
-    const comment = {
-      id: uuidv4(),
-      ...args.data
-    };
+    const comment = await prisma.comment.create({
+      data: {
+        text: data.text,
+        author: {
+          connect: {
+            id: data.author
+          }
+        },
+        post: {
+          connect: {
+            id: data.post
+          }
+        }
+      }
+    });
 
-    db.comments.push(comment);
-    // console.log(`comment ${args.data.post}`);
-    pubsub.publish(`comment ${args.data.post}`, {
+    pubsub.publish(`comment ${data.post}`, {
       comment: {
         mutation: 'CREATED',
         data: comment
