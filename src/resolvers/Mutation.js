@@ -1,19 +1,16 @@
 import { v4 as uuidv4 } from 'uuid';
 import { GraphQLYogaError } from '@graphql-yoga/node';
+import prisma from '../prisma';
 
 export default {
-  createUser: (parent, args, { db }) => {
-    const isEmailTaken = db.users.some(user => user.email === args.data.email);
-    if (isEmailTaken) throw new GraphQLYogaError('Email Taken!!');
-
-    const user = {
-      id: uuidv4(),
-      ...args.data
-    };
-
-    db.users.push(user);
-
-    return user;
+  createUser: async (parent, args, { db }) => {
+    try {
+      const user = await prisma.user.create({ data: args.data });
+      return user;
+    } catch (error) {
+      if (error.code === 'P2002') throw new GraphQLYogaError('Email Taken!');
+      throw new GraphQLYogaError('Error!!');
+    }
   },
   deleteUser: (_, args, { db }) => {
     const userIndex = db.users.findIndex(user => user.id === args.id);
@@ -59,17 +56,25 @@ export default {
     }
     return user;
   },
-  createPost: (parent, args, { db, pubsub }) => {
-    const userExits = db.users.some(user => user.id === args.data.author);
+  createPost: async (parent, { data }, { db, pubsub }) => {
+    const userExits = await prisma.user.findUnique({
+      where: { id: data.author }
+    });
 
     if (!userExits) throw new GraphQLYogaError('User Not Found!');
 
-    const post = {
-      id: uuidv4(),
-      ...args.data
-    };
-
-    db.posts.push(post);
+    const post = await prisma.post.create({
+      data: {
+        title: data.title,
+        body: data.body,
+        published: data.published,
+        author: {
+          connect: {
+            id: data.author
+          }
+        }
+      }
+    });
 
     if (post.published)
       pubsub.publish('post', {
