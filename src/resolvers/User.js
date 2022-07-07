@@ -1,8 +1,16 @@
+import prisma from '../prisma';
 export default {
-  posts: (parent, _, { db }) => {
-    return db.posts.filter(post => {
-      return post.author === parent.id;
+  posts: async (parent, _, { db }) => {
+    const posts = await prisma.post.findMany({
+      where: {
+        author: {
+          id: {
+            equals: parent.id
+          }
+        }
+      }
     });
+    return posts;
   },
   comments: (parent, _, { db }) => {
     return db.comments.filter(comment => comment.author === parent.id);

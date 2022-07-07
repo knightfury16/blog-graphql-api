@@ -1,9 +1,16 @@
-export default {
-  users: (parent, args, { db }, info) => {
-    if (!args.query) return db.users;
+import prisma from '../prisma'; //Because I'm loosing all context if I access it by ctx
 
-    return db.users.filter(user => {
-      return user.name.toLowerCase().includes(args.query.toLowerCase());
+const Query = {
+  users: async (_, args, { db }, info) => {
+    if (!args.query) return await prisma.user.findMany();
+
+    return await prisma.user.findMany({
+      where: {
+        name: {
+          contains: args.query,
+          mode: 'insensitive'
+        }
+      }
     });
   },
 
@@ -32,3 +39,4 @@ export default {
     published: true
   })
 };
+export { Query as default };
