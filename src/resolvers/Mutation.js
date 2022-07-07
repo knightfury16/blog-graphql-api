@@ -174,21 +174,20 @@ export default {
 
     return comment;
   },
-  deleteComment: (_, args, { db, pubsub }) => {
-    const commentIndex = db.comments.findIndex(comment => comment.id === args.id);
-
-    if (commentIndex === -1) throw new GraphQLYogaError('Comment not found!');
-
-    const [deletedComment] = db.comments.splice(commentIndex, 1);
-
-    pubsub.publish(`comment ${deletedComment.post}`, {
-      comment: {
-        mutation: 'DELETED',
-        data: deletedComment
-      }
-    });
-
-    return deletedComment;
+  deleteComment: async (_, args, { db, pubsub }) => {
+    try {
+      const comment = await prisma.comment.delete({ where: { id: args.id } });
+      pubsub.publish(`comment ${comment.postId}`, {
+        comment: {
+          mutation: 'DELETED',
+          data: comment
+        }
+      });
+      return comment;
+    } catch (error) {
+      if (error.code === 'P2025') throw new GraphQLYogaError('Comment not found.');
+      throw new GraphQLYogaError('Error4!!');
+    }
   },
   updateComment: (_, { id, data }, { db, pubsub }) => {
     const comment = db.comments.find(comment => comment.id === id);
