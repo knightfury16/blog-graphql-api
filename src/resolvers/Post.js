@@ -1,7 +1,12 @@
+import prisma from '../prisma';
 export default {
-  author: (parent, args, { db }, info) => {
-    return db.users.find(user => {
-      return user.id === parent.author;
+  author: async (parent, args, { db }, info) => {
+    return await prisma.user.findFirst({
+      where: {
+        id: {
+          equals: parent.userId
+        }
+      }
     });
   },
   comments: (parent, _, { db }) => {

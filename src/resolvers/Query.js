@@ -14,13 +14,26 @@ const Query = {
     });
   },
 
-  posts: (parent, args, { db }, info) => {
-    if (!args.query) return db.posts;
+  posts: async (parent, args, { db }, info) => {
+    if (!args.query) return await prisma.post.findMany();
 
-    return db.posts.filter(post => {
-      const isTitleMtch = post.title.toLowerCase().includes(args.query.toLowerCase());
-      const isBodyMtch = post.body.toLowerCase().includes(args.query.toLowerCase());
-      return isTitleMtch || isBodyMtch;
+    return await prisma.post.findMany({
+      where: {
+        OR: [
+          {
+            title: {
+              contains: args.query,
+              mode: 'insensitive'
+            }
+          },
+          {
+            body: {
+              contains: args.query,
+              mode: 'insensitive'
+            }
+          }
+        ]
+      }
     });
   },
   comments: (_, __, { db }) => {
