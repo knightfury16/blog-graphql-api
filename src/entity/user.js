@@ -1,11 +1,26 @@
-import { GraphQLYogaError } from '@graphql-yoga/node';
 import prisma from '../prisma';
+import Joi from 'joi';
+import { GraphQLYogaError } from '@graphql-yoga/node';
+import bcrypt from 'bcryptjs';
+
+const userValidationSchema = Joi.object({
+  name: Joi.string().alphanum().min(3).max(10).required(),
+  password: Joi.string().min(3).pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
+  email: Joi.string()
+    .email({ tlds: { allow: ['com', 'net'] } })
+    .required()
+});
 
 export default {
   createUser: async (parent, args, { prismaSelect }, info) => {
     const select = prismaSelect(info);
+    const { error, value: data } = userValidationSchema.validate(args.data);
 
-    return await prisma.user.create({ data: args.data, ...select });
+    if (error) throw new GraphQLYogaError(error);
+
+    data.password = await bcrypt.hash(data.password, 10);
+
+    return await prisma.user.create({ data, ...select });
   },
   deleteUser: async (_, args, { prismaSelect }, info) => {
     const select = prismaSelect(info);
