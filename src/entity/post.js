@@ -1,11 +1,14 @@
 import { GraphQLYogaError } from '@graphql-yoga/node';
 import prisma from '../prisma';
+import getUserId from '../utils/getUserId';
 
 export default {
-  createPost: async (parent, { data }, { prismaSelect, pubsub }, info) => {
+  createPost: async (parent, { data }, { prismaSelect, pubsub, request }, info) => {
+    const userId = getUserId(request);
+
     const select = prismaSelect(info);
     const userExits = await prisma.user.findUnique({
-      where: { id: data.author }
+      where: { id: userId }
     });
 
     if (!userExits) throw new GraphQLYogaError('User Not Found!');
@@ -17,7 +20,7 @@ export default {
         published: data.published,
         author: {
           connect: {
-            id: data.author
+            id: userId
           }
         }
       },

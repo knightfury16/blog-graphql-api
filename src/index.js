@@ -30,10 +30,13 @@ const server = createServer({
       Comment
     }
   },
-  context: {
-    db,
-    pubsub,
-    prismaSelect
+  context: request => {
+    return {
+      db,
+      pubsub,
+      prismaSelect,
+      request
+    };
   },
   maskedErrors: false
 });
