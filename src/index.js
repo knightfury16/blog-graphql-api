@@ -1,6 +1,7 @@
 import { createPubSub, createServer } from '@graphql-yoga/node';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { PrismaSelect } from '@paljs/plugins';
 
 //local imports
 import db from './db';
@@ -11,7 +12,11 @@ import Query from './resolvers/Query';
 import Subscription from './resolvers/Subscription';
 import User from './resolvers/User';
 
+// For the contex
 const pubsub = createPubSub();
+const prismaSelect = info => {
+  return new PrismaSelect(info).value;
+};
 // Create your server
 const server = createServer({
   schema: {
@@ -27,7 +32,8 @@ const server = createServer({
   },
   context: {
     db,
-    pubsub
+    pubsub,
+    prismaSelect
   },
   maskedErrors: false
 });

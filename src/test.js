@@ -6,31 +6,24 @@ const prisma = new PrismaClient({
 });
 
 async function main() {
-  // for (let index = 0; index < 10; index++) {
-  //   await prisma.user.create({
-  //     data: {
-  //       name: faker.name.findName(),
-  //       email: faker.internet.email(),
-  //       posts: {
-  //         create: {
-  //           title: faker.animal.bear(),
-  //           body: faker.fake(
-  //             'I flipped the coin an got: {{helpers.arrayElement(["heads", "tails"])}}'
-  //           ),
-  //           published: faker.datatype.boolean()
-  //         }
-  //       }
-  //     }
-  //   });
-  // }
-
-  // await prisma.comment.create({
-  //   data:{
-  //     text:"",
-  //     author:"",
-  //     post:""
-  //   }
-  // })
+  for (let index = 0; index < 10; index++) {
+    await prisma.user.create({
+      data: {
+        name: faker.name.findName(),
+        email: faker.internet.email(),
+        password: faker.random.alphaNumeric(5),
+        posts: {
+          create: {
+            title: faker.animal.bear(),
+            body: faker.fake(
+              'I flipped the coin an got: {{helpers.arrayElement(["heads", "tails"])}}'
+            ),
+            published: faker.datatype.boolean()
+          }
+        }
+      }
+    });
+  }
 
   // ... you will write your Prisma Client queries here
   const users = await prisma.user.findMany({});
