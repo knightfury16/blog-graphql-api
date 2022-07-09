@@ -2,6 +2,7 @@ import prisma from '../prisma';
 import Joi from 'joi';
 import { GraphQLYogaError } from '@graphql-yoga/node';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const userValidationSchema = Joi.object({
   name: Joi.string().alphanum().min(3).max(10).required(),
@@ -20,7 +21,11 @@ export default {
 
     data.password = await bcrypt.hash(data.password, 10);
 
-    return await prisma.user.create({ data, ...select });
+    const user = await prisma.user.create({ data });
+    return {
+      user,
+      token: jwt.sign({ userId: user.id }, 'thisismysecret')
+    };
   },
   deleteUser: async (_, args, { prismaSelect }, info) => {
     const select = prismaSelect(info);
