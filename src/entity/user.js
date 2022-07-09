@@ -27,6 +27,21 @@ export default {
       token: jwt.sign({ userId: user.id }, 'thisismysecret')
     };
   },
+
+  loginUser: async (_, { data }) => {
+    const user = await prisma.user.findUnique({ where: { email: data.email } });
+    if (!user) throw new GraphQLYogaError('Unable to authenticate!');
+
+    const isMatch = await bcrypt.compare(data.password, user.password);
+
+    if (!isMatch) throw new GraphQLYogaError('Unable yo authenticate!');
+
+    return {
+      user,
+      token: jwt.sign({ userId: user.id }, 'thisismysecret')
+    };
+  },
+
   deleteUser: async (_, args, { prismaSelect }, info) => {
     const select = prismaSelect(info);
     return await prisma.user.delete({
