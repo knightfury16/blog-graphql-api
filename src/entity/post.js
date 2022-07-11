@@ -37,8 +37,26 @@ export default {
 
     return post;
   },
-  deletePost: async (_, args, { prismaSelect, pubsub }, info) => {
+  deletePost: async (_, args, { prismaSelect, pubsub, request }, info) => {
     try {
+      const userId = getUserId(request);
+
+      const postVerify = await prisma.post.findFirst({
+        where: {
+          AND: [
+            {
+              id: { equals: args.id }
+            },
+            {
+              author: {
+                id: { equals: userId }
+              }
+            }
+          ]
+        }
+      });
+      if (!postVerify) throw new GraphQLYogaError('Unable to delete post.');
+
       const select = prismaSelect(info);
       const post = await prisma.post.delete({ where: { id: args.id }, ...select });
 
@@ -53,7 +71,7 @@ export default {
       return post;
     } catch (error) {
       if (error.code === 'P2025') throw new GraphQLYogaError('Post not found.');
-      throw new GraphQLYogaError('Error3!!');
+      throw new GraphQLYogaError(error);
     }
   },
   updatePost: async (_, { id, data }, { prismaSelect, pubsub }, info) => {
