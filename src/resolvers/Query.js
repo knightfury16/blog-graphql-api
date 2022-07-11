@@ -1,4 +1,5 @@
 import prisma from '../prisma'; //Because I'm loosing all context if I access it by ctx
+import getUserId from '../utils/getUserId';
 
 const Query = {
   users: async (_, args, { db, prismaSelect }, info) => {
@@ -60,17 +61,11 @@ const Query = {
     return await prisma.comment.findMany({ ...select });
   },
 
-  me: () => ({
-    id: 'abc123',
-    name: 'Mike',
-    email: 'mike@gmail.com',
-    age: 22
-  }),
-  post: () => ({
-    id: 'abc456',
-    title: 'My first blog',
-    body: 'Body of my first blog',
-    published: true
-  })
+  me: async (_, __, { prismaSelect, request }, info) => {
+    const userId = getUserId(request);
+    const select = prismaSelect(info);
+
+    return await prisma.user.findUnique({ where: { id: userId }, ...select });
+  }
 };
 export { Query as default };

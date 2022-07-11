@@ -3,6 +3,7 @@ import Joi from 'joi';
 import { GraphQLYogaError } from '@graphql-yoga/node';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import getUserId from '../utils/getUserId';
 
 const userValidationSchema = Joi.object({
   name: Joi.string().alphanum().min(3).max(10).required(),
@@ -24,7 +25,7 @@ export default {
     const user = await prisma.user.create({ data });
     return {
       user,
-      token: jwt.sign({ userId: user.id }, 'thisismysecret')
+      token: jwt.sign({ userId: user.id }, 'thisismysecret', { expiresIn: '15m' })
     };
   },
 
@@ -38,22 +39,24 @@ export default {
 
     return {
       user,
-      token: jwt.sign({ userId: user.id }, 'thisismysecret')
+      token: jwt.sign({ userId: user.id }, 'thisismysecret', { expiresIn: '15m' })
     };
   },
 
-  deleteUser: async (_, args, { prismaSelect }, info) => {
+  deleteUser: async (_, args, { prismaSelect, request }, info) => {
+    const userId = getUserId(request);
     const select = prismaSelect(info);
     return await prisma.user.delete({
       where: {
-        id: args.id
+        id: userId
       },
       ...select
     });
   },
-  updateUser: async (parent, args, { prismaSelect }, info) => {
+  updateUser: async (parent, args, { prismaSelect, request }, info) => {
+    const userId = getUserId(request);
     const select = prismaSelect(info);
     const { id, data } = args;
-    return await prisma.user.update({ where: { id }, data: { ...data }, ...select });
+    return await prisma.user.update({ where: { userId }, data: { ...data }, ...select });
   }
 };
