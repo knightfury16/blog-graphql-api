@@ -1,6 +1,7 @@
 import { GraphQLYogaError } from '@graphql-yoga/node';
 import prisma from '../prisma';
 import getUserId from '../utils/getUserId';
+import verifyPost from '../utils/verifyPost';
 
 export default {
   createPost: async (parent, { data }, { prismaSelect, pubsub, request }, info) => {
@@ -39,24 +40,14 @@ export default {
   },
   deletePost: async (_, args, { prismaSelect, pubsub, request }, info) => {
     try {
+      // get the user id from jwt token
       const userId = getUserId(request);
 
-      const postVerify = await prisma.post.findFirst({
-        where: {
-          AND: [
-            {
-              id: { equals: args.id }
-            },
-            {
-              author: {
-                id: { equals: userId }
-              }
-            }
-          ]
-        }
-      });
-      if (!postVerify) throw new GraphQLYogaError('Unable to delete post.');
+      // verify if the post i created by user or not
+      if (!(await verifyPost(args.id, userId)))
+        throw new GraphQLYogaError('Unable to delete post.');
 
+      // proceed to delete the post
       const select = prismaSelect(info);
       const post = await prisma.post.delete({ where: { id: args.id }, ...select });
 
@@ -74,14 +65,18 @@ export default {
       throw new GraphQLYogaError(error);
     }
   },
-  updatePost: async (_, { id, data }, { prismaSelect, pubsub }, info) => {
+  updatePost: async (_, { id, data }, { prismaSelect, request }, info) => {
     try {
+      const userId = getUserId(request);
+      if (!(await verifyPost(id, userId))) {
+        throw new GraphQLYogaError('Unable to update post.');
+      }
+
       const select = prismaSelect(info);
-      const post = await prisma.post.update({ where: { id: id }, data, ...select });
-      return post;
+      return await prisma.post.update({ where: { id: id }, data, ...select });
     } catch (error) {
       if (error.code === 'P2025') throw new GraphQLYogaError('Post not found.');
-      throw new GraphQLYogaError('Error5!!');
+      throw new GraphQLYogaError(error);
     }
   }
 };
