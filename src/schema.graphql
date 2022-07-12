@@ -5,7 +5,7 @@ type Query {
   "Returns user profile"
   me: User! #Returns user profile
   "Returns a post"
-  post: Post!
+  post(id: ID!): Post!
 
   "Returns all the post"
   posts(query: String): [Post!]!

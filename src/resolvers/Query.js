@@ -1,3 +1,4 @@
+import { GraphQLError } from 'graphql';
 import prisma from '../prisma'; //Because I'm loosing all context if I access it by ctx
 import getUserId from '../utils/getUserId';
 
@@ -66,6 +67,41 @@ const Query = {
     const select = prismaSelect(info);
 
     return await prisma.user.findUnique({ where: { id: userId }, ...select });
+  },
+
+  post: async (_, { id }, { prismaSelect, request }, info) => {
+    const userId = getUserId(request, false);
+
+    const select = prismaSelect(info);
+
+    const post = await prisma.post.findFirst({
+      where: {
+        AND: [
+          {
+            id: { equals: id }
+          },
+          {
+            OR: [
+              {
+                published: { equals: true }
+              },
+              {
+                author: {
+                  id: { equals: userId }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      ...select
+    });
+
+    if (!post) {
+      throw new GraphQLError('Unable to read post!');
+    }
+
+    return post;
   }
 };
 export { Query as default };
