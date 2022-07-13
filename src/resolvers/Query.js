@@ -5,10 +5,16 @@ import getUserId from '../utils/getUserId';
 const Query = {
   users: async (_, args, { db, prismaSelect }, info) => {
     const select = prismaSelect(info);
+    const take = args.take;
+    const skip = args.skip;
+
+    console.log(take, skip);
 
     if (!args.query)
       return await prisma.user.findMany({
-        ...select
+        take,
+        ...select,
+        skip
       });
 
     return await prisma.user.findMany({
@@ -18,14 +24,23 @@ const Query = {
           mode: 'insensitive'
         }
       },
-      ...select
+      ...select,
+      take,
+      skip
     });
   },
 
   posts: async (parent, args, { prismaSelect }, info) => {
     const select = prismaSelect(info);
+
     if (!args.query)
-      return await prisma.post.findMany({ where: { published: { equals: true } }, ...select });
+      return await prisma.post.findMany({
+        where: { published: { equals: true } },
+        ...select,
+        orderBy: { createdAt: 'desc' },
+        take: args.take,
+        skip: args.skip
+      });
 
     return await prisma.post.findMany({
       where: {
@@ -51,11 +66,14 @@ const Query = {
           }
         ]
       },
-      ...select
+      ...select,
+      orderBy: { createdAt: 'desc' },
+      take: args.take,
+      skip: args.skip
     });
   },
 
-  myPosts: async (_, { query }, { prismaSelect, request }, info) => {
+  myPosts: async (_, { query, take, skip }, { prismaSelect, request }, info) => {
     const userId = getUserId(request);
     const select = prismaSelect(info);
 
@@ -85,16 +103,19 @@ const Query = {
           }
         ]
       },
-      ...select
+      ...select,
+      orderBy: { createdAt: 'desc' },
+      take,
+      skip
     });
 
     return posts;
   },
 
-  comments: async (_, __, { prismaSelect }, info) => {
+  comments: async (_, { take, skip }, { prismaSelect }, info) => {
     const select = prismaSelect(info);
 
-    return await prisma.comment.findMany({ ...select });
+    return await prisma.comment.findMany({ ...select, orderBy: { createdAt: 'desc' }, take, skip });
   },
 
   me: async (_, __, { prismaSelect, request }, info) => {

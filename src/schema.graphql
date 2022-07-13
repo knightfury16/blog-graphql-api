@@ -1,6 +1,6 @@
 type Query {
   "Returns an array of all users"
-  users(query: String): [User!]!
+  users(query: String, take: Int, skip: Int): [User!]!
 
   "Returns user profile"
   me: User! #Returns user profile
@@ -8,12 +8,12 @@ type Query {
   post(id: ID!): Post!
 
   "Returns all the post"
-  posts(query: String): [Post!]!
+  posts(query: String, take: Int, skip: Int): [Post!]!
 
-  myPosts(query: String): [Post!]!
+  myPosts(query: String, take: Int, skip: Int): [Post!]!
 
   "returns all the comments"
-  comments: [Comment!]!
+  comments(take: Int, skip: Int): [Comment!]!
 }
 type Mutation {
   createUser(data: CreateUserInput!): AuthPayload!
@@ -91,6 +91,8 @@ type Post {
   published: Boolean!
   author: User!
   comments: [Comment!]!
+  createdAt: String!
+  updatedAt: String!
 }
 
 type Comment {
@@ -98,6 +100,8 @@ type Comment {
   text: String!
   author: User!
   post: Post!
+  createdAt: String!
+  updatedAt: String!
 }
 
 enum MutationType {
