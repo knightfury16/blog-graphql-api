@@ -1,17 +1,15 @@
+import getUserId from '../utils/getUserId';
+
 export default {
-  // posts: async (parent, _, { db }) => {
-  //   const posts = await prisma.post.findMany({
-  //     where: {
-  //       author: {
-  //         id: {
-  //           equals: parent.id
-  //         }
-  //       }
-  //     }
-  //   });
-  //   return posts;
-  // },
-  // comments: (parent, _, { db }) => {
-  //   return db.comments.filter(comment => comment.author === parent.id);
-  // }
+  posts: parent => {
+    return parent.posts.filter(post => post.published === true);
+  },
+  email: (parent, args, { request }, info) => {
+    const userId = getUserId(request, false);
+    if (userId && userId === parent.id) {
+      return parent.email;
+    } else {
+      return null;
+    }
+  }
 };

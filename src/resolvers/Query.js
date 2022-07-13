@@ -13,20 +13,10 @@ const Query = {
 
     return await prisma.user.findMany({
       where: {
-        OR: [
-          {
-            name: {
-              contains: args.query,
-              mode: 'insensitive'
-            }
-          },
-          {
-            email: {
-              contains: args.query,
-              mode: 'insensitive'
-            }
-          }
-        ]
+        name: {
+          contains: args.query,
+          mode: 'insensitive'
+        }
       },
       ...select
     });

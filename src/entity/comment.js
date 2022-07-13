@@ -8,6 +8,11 @@ export default {
     const userId = getUserId(request);
     const select = prismaSelect(info);
 
+    const post = await prisma.post.findUnique({ where: { id: data.post } });
+    if (!post.published) {
+      throw new GraphQLYogaError('Can not comment');
+    }
+
     const comment = await prisma.comment.create({
       data: {
         text: data.text,

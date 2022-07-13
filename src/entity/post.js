@@ -72,6 +72,10 @@ export default {
         throw new GraphQLYogaError('Unable to update post.');
       }
 
+      if (typeof data.published === 'boolean' && !data.published) {
+        await prisma.comment.deleteMany({ where: { postId: id } });
+      }
+
       const select = prismaSelect(info);
       return await prisma.post.update({ where: { id: id }, data, ...select });
     } catch (error) {
