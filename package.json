@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node --ext js,graphql ./public/scripts/index.js",
+    "start": "node ./public/scripts/index.js",
     "heroku-postbuild": "babel src --out-dir=public/scripts --presets=@babel/preset-env --delete-dir-on-start --copy-files",
     "dev": "nodemon --require dotenv/config --ext js,graphql ./public/scripts/index.js ",
     "build": "babel src --out-dir=public/scripts --presets=@babel/preset-env --delete-dir-on-start --copy-files --watch"
