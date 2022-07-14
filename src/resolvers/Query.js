@@ -8,11 +8,12 @@ const Query = {
     const take = args.take;
     const skip = args.skip;
 
-    console.log(take, skip);
+    // console.log(take, skip);
 
     if (!args.query)
       return await prisma.user.findMany({
         take,
+        orderBy: { createdAt: 'desc' },
         ...select,
         skip
       });
@@ -25,6 +26,7 @@ const Query = {
         }
       },
       ...select,
+      orderBy: { createdAt: 'desc' },
       take,
       skip
     });
