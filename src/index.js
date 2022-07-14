@@ -19,6 +19,7 @@ const prismaSelect = info => {
 };
 // Create your server
 const server = createServer({
+  port: process.env.PORT,
   schema: {
     typeDefs: readFileSync(join(__dirname, './schema.graphql'), 'utf-8'),
     resolvers: {

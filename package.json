@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --ext js,graphql ./public/scripts/index.js",
+    "start": "nodemon --require dotenv/config --ext js,graphql ./public/scripts/index.js ",
     "build": "babel src --out-dir=public/scripts --presets=@babel/preset-env --delete-dir-on-start --copy-files --watch"
   },
   "keywords": [],
@@ -15,10 +15,10 @@
     "@paljs/plugins": "^4.1.0",
     "@prisma/client": "^4.0.0",
     "bcryptjs": "^2.4.3",
+    "dotenv": "^16.0.1",
     "graphql": "^16.5.0",
     "joi": "^17.6.0",
-    "jsonwebtoken": "^8.5.1",
-    "uuid": "^8.3.2"
+    "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.18.6",
