@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --require dotenv/config --ext js,graphql ./public/scripts/index.js ",
+    "start": "node --ext js,graphql ./public/scripts/index.js",
+    "heroku-postbuild": "babel src --out-dir=public/scripts --presets=@babel/preset-env --delete-dir-on-start --copy-files",
+    "dev": "nodemon --require dotenv/config --ext js,graphql ./public/scripts/index.js ",
     "build": "babel src --out-dir=public/scripts --presets=@babel/preset-env --delete-dir-on-start --copy-files --watch"
   },
   "keywords": [],
@@ -18,12 +20,12 @@
     "dotenv": "^16.0.1",
     "graphql": "^16.5.0",
     "joi": "^17.6.0",
-    "jsonwebtoken": "^8.5.1"
-  },
-  "devDependencies": {
     "@babel/cli": "^7.18.6",
     "@babel/core": "^7.18.6",
     "@babel/preset-env": "^7.18.6",
+    "jsonwebtoken": "^8.5.1"
+  },
+  "devDependencies": {
     "@faker-js/faker": "^7.3.0",
     "nodemon": "^2.0.19",
     "prisma": "^4.0.0"
