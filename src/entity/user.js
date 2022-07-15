@@ -63,8 +63,6 @@ export default {
       if (error) throw new GraphQLYogaError(error);
       data.password = await bcrypt.hash(value, 10);
     }
-    console.log(data);
-    console.log(userId);
     return await prisma.user.update({ where: { id: userId }, data: { ...data }, ...select });
   }
 };
