@@ -56,7 +56,15 @@ export default {
   updateUser: async (parent, args, { prismaSelect, request }, info) => {
     const userId = getUserId(request);
     const select = prismaSelect(info);
-    const { id, data } = args;
-    return await prisma.user.update({ where: { userId }, data: { ...data }, ...select });
+    const { data } = args;
+    if (typeof data.password === 'string') {
+      const passwordSchema = Joi.string().min(3).pattern(new RegExp('^[a-zA-Z0-9]{3,30}$'));
+      const { error, value } = passwordSchema.validate(data.password);
+      if (error) throw new GraphQLYogaError(error);
+      data.password = await bcrypt.hash(value, 10);
+    }
+    console.log(data);
+    console.log(userId);
+    return await prisma.user.update({ where: { id: userId }, data: { ...data }, ...select });
   }
 };
