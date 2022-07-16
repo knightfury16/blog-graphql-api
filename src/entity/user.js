@@ -4,17 +4,10 @@ import { GraphQLYogaError } from '@graphql-yoga/node';
 import bcrypt from 'bcryptjs';
 import getUserId from '../utils/getUserId';
 import generateToken from '../utils/generateToken';
-
-const userValidationSchema = Joi.object({
-  name: Joi.string().alphanum().min(3).max(10).required(),
-  password: Joi.string().min(3).pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
-  email: Joi.string()
-    .email({ tlds: { allow: ['com', 'net'] } })
-    .required()
-});
+import { userValidationSchema } from './userValidationSchema';
 
 export default {
-  createUser: async (parent, args, { prismaSelect }, info) => {
+  createUser: async (_, args, { prismaSelect }, info) => {
     const select = prismaSelect(info);
     const { error, value: data } = userValidationSchema.validate(args.data);
 
@@ -22,7 +15,7 @@ export default {
 
     data.password = await bcrypt.hash(data.password, 10);
 
-    const user = await prisma.user.create({ data });
+    const user = await prisma.user.create({ data, ...select });
     return {
       user,
       token: generateToken(user.id)
@@ -43,9 +36,10 @@ export default {
     };
   },
 
-  deleteUser: async (_, args, { prismaSelect, request }, info) => {
+  deleteUser: async (_, __, { prismaSelect, request }, info) => {
     const userId = getUserId(request);
     const select = prismaSelect(info);
+
     return await prisma.user.delete({
       where: {
         id: userId
@@ -53,7 +47,8 @@ export default {
       ...select
     });
   },
-  updateUser: async (parent, args, { prismaSelect, request }, info) => {
+
+  updateUser: async (_, args, { prismaSelect, request }, info) => {
     const userId = getUserId(request);
     const select = prismaSelect(info);
     const { data } = args;

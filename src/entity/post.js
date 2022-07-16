@@ -4,7 +4,7 @@ import getUserId from '../utils/getUserId';
 import verifyPost from '../utils/verifyPost';
 
 export default {
-  createPost: async (parent, { data }, { prismaSelect, pubsub, request }, info) => {
+  createPost: async (_, { data }, { prismaSelect, pubsub, request }, info) => {
     const userId = getUserId(request);
 
     const select = prismaSelect(info);

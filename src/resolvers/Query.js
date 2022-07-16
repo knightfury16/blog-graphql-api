@@ -3,12 +3,10 @@ import prisma from '../prisma'; //Because I'm loosing all context if I access it
 import getUserId from '../utils/getUserId';
 
 const Query = {
-  users: async (_, args, { db, prismaSelect }, info) => {
+  users: async (_, args, { prismaSelect }, info) => {
     const select = prismaSelect(info);
     const take = args.take;
     const skip = args.skip;
-
-    // console.log(take, skip);
 
     if (!args.query)
       return await prisma.user.findMany({
@@ -32,7 +30,7 @@ const Query = {
     });
   },
 
-  posts: async (parent, args, { prismaSelect }, info) => {
+  posts: async (_, args, { prismaSelect }, info) => {
     const select = prismaSelect(info);
 
     if (!args.query)
