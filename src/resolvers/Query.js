@@ -3,6 +3,9 @@ import prisma from '../prisma'; //Because I'm loosing all context if I access it
 import getUserId from '../utils/getUserId';
 
 const Query = {
+  hello: () => {
+    return 'Hello There!';
+  },
   users: async (_, args, { prismaSelect }, info) => {
     const select = prismaSelect(info);
     const take = args.take;

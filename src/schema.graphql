@@ -1,4 +1,5 @@
 type Query {
+  hello: String!
   "Returns an array of all users"
   users(query: String, take: Int, skip: Int): [User!]!
 

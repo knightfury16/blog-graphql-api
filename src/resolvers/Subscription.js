@@ -5,12 +5,12 @@ export default {
       let count = 0;
       if (!post) throw new GraphQLYogaError('No post found');
 
-      return pubsub.subscribe(`comment ${postId}`);
+      return pubsub.asyncIterator(`comment ${postId}`);
     }
   },
   post: {
     subscribe: (_, __, { pubsub }) => {
-      return pubsub.subscribe('post');
+      return pubsub.asyncIterator('post');
     }
   }
 };
