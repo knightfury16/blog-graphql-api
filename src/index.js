@@ -9,9 +9,9 @@ import { useServer } from 'graphql-ws/lib/use/ws';
 import { createServer } from 'http';
 import { join } from 'path';
 import { WebSocketServer } from 'ws';
+import { ApolloServer } from 'apollo-server-express';
 
 //local imports
-import { ApolloServer } from 'apollo-server-express';
 import db from './db';
 import Comment from './resolvers/Comment';
 import Mutation from './resolvers/Mutation';
@@ -52,7 +52,19 @@ const main = async () => {
     path: '/graphql'
   });
 
-  const serverCleanup = useServer({ schema: scemaWithResolver }, wsServer);
+  const serverCleanup = useServer(
+    {
+      schema: scemaWithResolver,
+      context: (ctx, msg, args) => {
+        console.log('CONTEXT OF SUB:', ctx);
+        console.log('MSG OF SUB:', msg);
+        console.log('ARGS OF SUB:', args);
+
+        return { pubsub };
+      }
+    },
+    wsServer
+  );
 
   const server = new ApolloServer({
     schema: scemaWithResolver,

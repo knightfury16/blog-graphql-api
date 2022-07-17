@@ -10,6 +10,8 @@ export default {
   },
   post: {
     subscribe: (_, __, { pubsub }) => {
+      //   console.log('Im here');
+      // console.log('CONTEXT FROM POST SUB:', ctx);
       return pubsub.asyncIterator('post');
     }
   }
