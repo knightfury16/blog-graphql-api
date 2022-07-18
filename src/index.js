@@ -1,24 +1,12 @@
-import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
-import { loadSchema } from '@graphql-tools/load';
-import { addResolversToSchema } from '@graphql-tools/schema';
 import { PrismaSelect } from '@paljs/plugins';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import express from 'express';
 import { PubSub } from 'graphql-subscriptions';
 import { useServer } from 'graphql-ws/lib/use/ws';
 import { createServer } from 'http';
-import { join } from 'path';
 import { WebSocketServer } from 'ws';
 import { ApolloServer } from 'apollo-server-express';
-
-//local imports
-import db from './db';
-import Comment from './resolvers/Comment';
-import Mutation from './resolvers/Mutation';
-import Post from './resolvers/Post';
-import Query from './resolvers/Query';
-import Subscription from './resolvers/Subscription';
-import User from './resolvers/User';
+import { scemaWithResolver } from './schema';
 
 // For the contex
 const pubsub = new PubSub();
@@ -27,22 +15,6 @@ const prismaSelect = info => {
 };
 
 const main = async () => {
-  const schema = await loadSchema(join(__dirname, './schema.graphql'), {
-    loaders: [new GraphQLFileLoader()]
-  });
-
-  // Write some resolvers
-  const resolvers = {
-    Query,
-    Mutation,
-    Subscription,
-    Post,
-    User,
-    Comment
-  };
-
-  const scemaWithResolver = addResolversToSchema({ schema, resolvers });
-
   const app = express();
   const httpServer = createServer(app);
 
@@ -56,10 +28,6 @@ const main = async () => {
     {
       schema: scemaWithResolver,
       context: (ctx, msg, args) => {
-        // console.log('CONTEXT OF SUB:', ctx);
-        // console.log('MSG OF SUB:', msg);
-        // console.log('ARGS OF SUB:', args);
-
         return { pubsub };
       }
     },
@@ -69,9 +37,7 @@ const main = async () => {
   const server = new ApolloServer({
     schema: scemaWithResolver,
     context: request => {
-      console.log('Request Headers: ', request.req.header('authorization'));
       return {
-        db,
         pubsub,
         prismaSelect,
         request
