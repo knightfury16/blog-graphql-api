@@ -1,21 +1,19 @@
 import prisma from '../prisma';
 import Joi from 'joi';
-import { GraphQLYogaError } from '@graphql-yoga/node';
 import bcrypt from 'bcryptjs';
 import getUserId from '../utils/getUserId';
 import generateToken from '../utils/generateToken';
-import { userValidationSchema } from './userValidationSchema';
+import { userValidationSchema } from '../utils/userValidationSchema';
 
 export default {
-  createUser: async (_, args, { prismaSelect }, info) => {
-    const select = prismaSelect(info);
+  createUser: async (_, args) => {
     const { error, value: data } = userValidationSchema.validate(args.data);
 
-    if (error) throw new GraphQLYogaError(error);
+    if (error) throw new Error(error);
 
     data.password = await bcrypt.hash(data.password, 10);
 
-    const user = await prisma.user.create({ data, ...select });
+    const user = await prisma.user.create({ data });
     return {
       user,
       token: generateToken(user.id)
@@ -24,11 +22,11 @@ export default {
 
   loginUser: async (_, { data }) => {
     const user = await prisma.user.findUnique({ where: { email: data.email } });
-    if (!user) throw new GraphQLYogaError('Unable to authenticate!');
+    if (!user) throw new Error('Unable to authenticate!');
 
     const isMatch = await bcrypt.compare(data.password, user.password);
 
-    if (!isMatch) throw new GraphQLYogaError('Unable yo authenticate!');
+    if (!isMatch) throw new Error('Unable to authenticate!');
 
     return {
       user,
@@ -55,7 +53,7 @@ export default {
     if (typeof data.password === 'string') {
       const passwordSchema = Joi.string().min(3).pattern(new RegExp('^[a-zA-Z0-9]{3,30}$'));
       const { error, value } = passwordSchema.validate(data.password);
-      if (error) throw new GraphQLYogaError(error);
+      if (error) throw new Error(error);
       data.password = await bcrypt.hash(value, 10);
     }
     return await prisma.user.update({ where: { id: userId }, data: { ...data }, ...select });

@@ -1,4 +1,3 @@
-import { GraphQLYogaError } from '@graphql-yoga/node';
 import prisma from '../prisma'; //Because I'm loosing all context if I access it by ctx
 import getUserId from '../utils/getUserId';
 
@@ -161,7 +160,7 @@ const Query = {
     });
 
     if (!post) {
-      throw new GraphQLYogaError('Unable to read post!');
+      throw new Error('Unable to read post!');
     }
 
     return post;

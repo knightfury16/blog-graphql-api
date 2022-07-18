@@ -1,4 +1,3 @@
-import { GraphQLError } from 'graphql';
 import jwt from 'jsonwebtoken';
 
 export default ({ req }, requireAuth = true) => {
@@ -10,7 +9,7 @@ export default ({ req }, requireAuth = true) => {
     return decoded.userId;
   }
   if (requireAuth) {
-    throw new GraphQLError('Authentication require!');
+    throw new Error('Authentication require!');
   }
 
   return null;

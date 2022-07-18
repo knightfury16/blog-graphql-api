@@ -19,7 +19,6 @@
     "@graphql-tools/graphql-file-loader": "^7.4.0",
     "@graphql-tools/load": "^7.7.0",
     "@graphql-tools/schema": "^8.5.0",
-    "@graphql-yoga/node": "^2.11.2",
     "@paljs/plugins": "^4.1.0",
     "@prisma/client": "^4.0.0",
     "apollo-server-core": "^3.10.0",

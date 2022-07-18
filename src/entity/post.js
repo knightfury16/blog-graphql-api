@@ -1,4 +1,3 @@
-import { GraphQLYogaError } from '@graphql-yoga/node';
 import prisma from '../prisma';
 import getUserId from '../utils/getUserId';
 import verifyPost from '../utils/verifyPost';
@@ -12,7 +11,7 @@ export default {
       where: { id: userId }
     });
 
-    if (!userExits) throw new GraphQLYogaError('User Not Found!');
+    if (!userExits) throw new Error('User Not Found!');
 
     const post = await prisma.post.create({
       data: {
@@ -44,8 +43,7 @@ export default {
       const userId = getUserId(request);
 
       // verify if the post i created by user or not
-      if (!(await verifyPost(args.id, userId)))
-        throw new GraphQLYogaError('Unable to delete post.');
+      if (!(await verifyPost(args.id, userId))) throw new Error('Unable to delete post.');
 
       // proceed to delete the post
       const select = prismaSelect(info);
@@ -61,15 +59,15 @@ export default {
       }
       return post;
     } catch (error) {
-      if (error.code === 'P2025') throw new GraphQLYogaError('Post not found.');
-      throw new GraphQLYogaError(error);
+      if (error.code === 'P2025') throw new Error('Post not found.');
+      throw new Error(error);
     }
   },
   updatePost: async (_, { id, data }, { prismaSelect, request }, info) => {
     try {
       const userId = getUserId(request);
       if (!(await verifyPost(id, userId))) {
-        throw new GraphQLYogaError('Unable to update post.');
+        throw new Error('Unable to update post.');
       }
 
       if (typeof data.published === 'boolean' && !data.published) {
@@ -79,8 +77,8 @@ export default {
       const select = prismaSelect(info);
       return await prisma.post.update({ where: { id: id }, data, ...select });
     } catch (error) {
-      if (error.code === 'P2025') throw new GraphQLYogaError('Post not found.');
-      throw new GraphQLYogaError(error);
+      if (error.code === 'P2025') throw new Error('Post not found.');
+      throw new Error(error);
     }
   }
 };
