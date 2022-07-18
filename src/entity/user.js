@@ -28,7 +28,7 @@ export default {
 
     const isMatch = await bcrypt.compare(data.password, user.password);
 
-    if (!isMatch) throw new GraphQLYogaError('Unable yo authenticate!');
+    if (!isMatch) throw new GraphQLYogaError('Unable to authenticate!');
 
     return {
       user,
