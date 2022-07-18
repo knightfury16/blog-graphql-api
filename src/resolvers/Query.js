@@ -3,7 +3,11 @@ import prisma from '../prisma'; //Because I'm loosing all context if I access it
 import getUserId from '../utils/getUserId';
 
 const Query = {
-  hello: () => {
+  hello: (_, __, { pubsub }) => {
+    // console.log(request);
+    // getUserId(request);
+
+    pubsub.publish('hello', { hello: 'Hello subscription ran' });
     return 'Hello There!';
   },
   users: async (_, args, { prismaSelect }, info) => {

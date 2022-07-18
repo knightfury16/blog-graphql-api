@@ -14,5 +14,10 @@ export default {
       // console.log('CONTEXT FROM POST SUB:', ctx);
       return pubsub.asyncIterator('post');
     }
+  },
+  hello: {
+    subscribe: (_, __, { pubsub }) => {
+      return pubsub.asyncIterator('hello');
+    }
   }
 };

@@ -56,9 +56,9 @@ const main = async () => {
     {
       schema: scemaWithResolver,
       context: (ctx, msg, args) => {
-        console.log('CONTEXT OF SUB:', ctx);
-        console.log('MSG OF SUB:', msg);
-        console.log('ARGS OF SUB:', args);
+        // console.log('CONTEXT OF SUB:', ctx);
+        // console.log('MSG OF SUB:', msg);
+        // console.log('ARGS OF SUB:', args);
 
         return { pubsub };
       }
@@ -69,6 +69,7 @@ const main = async () => {
   const server = new ApolloServer({
     schema: scemaWithResolver,
     context: request => {
+      console.log('Request Headers: ', request.req.header('authorization'));
       return {
         db,
         pubsub,
@@ -98,7 +99,7 @@ const main = async () => {
   server.applyMiddleware({ app });
 
   const port = process.env.PORT;
-  httpServer.listen(port, () => {
+  app.listen(port, () => {
     console.log(`Server ready at http://localhost:${port}${server.graphqlPath}`);
   });
 };

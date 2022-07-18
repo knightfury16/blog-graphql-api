@@ -1,8 +1,8 @@
 import { GraphQLError } from 'graphql';
 import jwt from 'jsonwebtoken';
 
-export default ({ request }, requireAuth = true) => {
-  const headers = request.headers.get('authorization');
+export default ({ req }, requireAuth = true) => {
+  const headers = req.header('authorization');
 
   if (headers) {
     const token = headers.replace('Bearer ', '');
