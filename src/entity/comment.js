@@ -1,4 +1,3 @@
-import { GraphQLYogaError } from '@graphql-yoga/node';
 import prisma from '../prisma';
 import getUserId from '../utils/getUserId';
 import verifyComment from '../utils/verifyComment';
@@ -10,7 +9,7 @@ export default {
 
     const post = await prisma.post.findUnique({ where: { id: data.post } });
     if (!post.published) {
-      throw new GraphQLYogaError('Can not comment');
+      throw new Error('Can not comment');
     }
 
     const comment = await prisma.comment.create({
@@ -44,7 +43,7 @@ export default {
     try {
       const userId = getUserId(request);
       if (!(await verifyComment(args.id, userId))) {
-        throw new GraphQLYogaError('Unable to delete');
+        throw new Error('Unable to delete');
       }
 
       const select = prismaSelect(info);
@@ -57,14 +56,14 @@ export default {
       });
       return comment;
     } catch (error) {
-      if (error.code === 'P2025') throw new GraphQLYogaError('Comment not found.');
-      throw new GraphQLYogaError(error);
+      if (error.code === 'P2025') throw new Error('Comment not found.');
+      throw new Error(error);
     }
   },
   updateComment: async (_, { id, data }, { prismaSelect, pubsub, request }, info) => {
     const userId = getUserId(request);
     if (!(await verifyComment(id, userId))) {
-      throw new GraphQLYogaError('Unable to update');
+      throw new Error('Unable to update');
     }
     const select = prismaSelect(info);
     const comment = await prisma.comment.update({ where: { id: id }, data, ...select });

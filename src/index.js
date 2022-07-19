@@ -1,45 +1,75 @@
-import { createPubSub, createServer } from '@graphql-yoga/node';
-import { readFileSync } from 'fs';
-import { join } from 'path';
 import { PrismaSelect } from '@paljs/plugins';
-
-//local imports
-import db from './db';
-import Comment from './resolvers/Comment';
-import Mutation from './resolvers/Mutation';
-import Post from './resolvers/Post';
-import Query from './resolvers/Query';
-import Subscription from './resolvers/Subscription';
-import User from './resolvers/User';
+import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
+import express from 'express';
+import { PubSub } from 'graphql-subscriptions';
+import { useServer } from 'graphql-ws/lib/use/ws';
+import { createServer } from 'http';
+import { WebSocketServer } from 'ws';
+import { ApolloServer } from 'apollo-server-express';
+import { scemaWithResolver } from './schema';
 
 // For the contex
-const pubsub = createPubSub();
+const pubsub = new PubSub();
 const prismaSelect = info => {
   return new PrismaSelect(info).value;
 };
-// Create your server
-const server = createServer({
-  port: process.env.PORT,
-  schema: {
-    typeDefs: readFileSync(join(__dirname, './schema.graphql'), 'utf-8'),
-    resolvers: {
-      Query,
-      Mutation,
-      Subscription,
-      Post,
-      User,
-      Comment
-    }
-  },
-  context: request => {
-    return {
-      db,
-      pubsub,
-      prismaSelect,
-      request
-    };
-  },
-  maskedErrors: false
+
+const main = async () => {
+  const app = express();
+  const httpServer = createServer(app);
+
+  // Creating the WebSocket server
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: '/graphql'
+  });
+
+  const serverCleanup = useServer(
+    {
+      schema: scemaWithResolver,
+      context: (ctx, msg, args) => {
+        return { pubsub };
+      }
+    },
+    wsServer
+  );
+
+  const server = new ApolloServer({
+    schema: scemaWithResolver,
+    context: request => {
+      return {
+        pubsub,
+        prismaSelect,
+        request
+      };
+    },
+    plugins: [
+      // Proper shutdown for the HTTP server.
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+
+      // Proper shutdown for the WebSocket server.
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose();
+            }
+          };
+        }
+      }
+    ]
+  });
+
+  await server.start();
+
+  server.applyMiddleware({ app });
+
+  const port = process.env.PORT;
+  app.listen(port, () => {
+    console.log(`Server ready at http://localhost:${port}${server.graphqlPath}`);
+  });
+};
+
+main().catch(e => {
+  console.log(e);
 });
-// start the server and explore http://localhost:4000/graphql
-server.start();
