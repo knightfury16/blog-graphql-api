@@ -7,7 +7,7 @@ Used technologies,
 - App
   - [Nodejs](https://nodejs.org/en/)
 - Server
-  - [Graphql-yoga](https://www.graphql-yoga.com/)
+  - [Apollo-server-express](https://github.com/apollographql/apollo-server)
 - Database
   - [PostgreSQL](https://www.postgresql.org/)
 - ORM
