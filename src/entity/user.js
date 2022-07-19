@@ -44,6 +44,7 @@ export default {
 
     if (!isMatch) throw new Error('Unable to authenticate!');
 
+
     return {
       user,
       token: generateToken(user.id)
