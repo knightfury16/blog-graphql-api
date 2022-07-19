@@ -6,22 +6,38 @@ import generateToken from '../utils/generateToken';
 import { userValidationSchema } from '../utils/userValidationSchema';
 
 export default {
-  createUser: async (_, args) => {
+  createUser: async (_, args, { prismaSelect }, info) => {
+    // removing token from info
+    const select = prismaSelect(info);
+    if (select.select.token) {
+      delete select.select.token;
+      select.select = select.select.user.select;
+      select.select.password = true;
+      select.select.posts.select.published = true;
+    }
     const { error, value: data } = userValidationSchema.validate(args.data);
 
     if (error) throw new Error(error);
 
     data.password = await bcrypt.hash(data.password, 10);
 
-    const user = await prisma.user.create({ data });
+    const user = await prisma.user.create({ data, ...select });
     return {
       user,
       token: generateToken(user.id)
     };
   },
 
-  loginUser: async (_, { data }) => {
-    const user = await prisma.user.findUnique({ where: { email: data.email } });
+  loginUser: async (_, { data }, { prismaSelect }, info) => {
+    // removing token from info
+    const select = prismaSelect(info);
+    if (select.select.token) {
+      delete select.select.token;
+      select.select = select.select.user.select;
+      select.select.password = true;
+      select.select.posts.select.published = true;
+    }
+    const user = await prisma.user.findUnique({ where: { email: data.email }, ...select });
     if (!user) throw new Error('Unable to authenticate!');
 
     const isMatch = await bcrypt.compare(data.password, user.password);
