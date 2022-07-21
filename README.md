@@ -1,6 +1,6 @@
 # A production ready graphql blog API
 
-## [Test](https://knight-blog.herokuapp.com/graphql) it out.
+
 
 Used technologies, 
 
