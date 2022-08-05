@@ -1,12 +1,7 @@
-import { PrismaSelect } from '@paljs/plugins';
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import { scemaWithResolver } from './schema';
-
-// For the contex
-const prismaSelect = info => {
-  return new PrismaSelect(info).value;
-};
+import { prismaSelect } from './utils/prismaSelect';
 
 const main = async () => {
   const app = express();

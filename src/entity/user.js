@@ -7,15 +7,9 @@ import { userValidationSchema } from '../utils/userValidationSchema';
 
 export default {
   createUser: async (_, args, { prismaSelect }, info) => {
-    // removing token from info
-    const select = prismaSelect(info);
-    console.log('select', select);
-    if (select.select.token) {
-      delete select.select.token;
-      select.select = select.select.user.select;
-      select.select.password = true;
-      select.select.posts.select.published = true;
-    }
+    // removing token from info and merging password field
+    const select = prismaSelect(info, true).valueOf('user', 'User', { select: { password: true } });
+
     const { error, value: data } = userValidationSchema.validate(args.data);
 
     if (error) throw new Error(error);
@@ -30,15 +24,11 @@ export default {
   },
 
   loginUser: async (_, { data }, { prismaSelect }, info) => {
-    // removing token from info
-    const select = prismaSelect(info);
-    if (select.select.token) {
-      delete select.select.token;
-      select.select = select.select.user.select;
-      select.select.password = true;
-      select.select.posts.select.published = true;
-    }
+    // removing token from info and merging password field
+    const select = prismaSelect(info, true).valueOf('user', 'User', { select: { password: true } });
+
     const user = await prisma.user.findUnique({ where: { email: data.email }, ...select });
+
     if (!user) throw new Error('Unable to authenticate!');
 
     const isMatch = await bcrypt.compare(data.password, user.password);
