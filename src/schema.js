@@ -8,7 +8,6 @@ import Comment from './resolvers/Comment';
 import Mutation from './resolvers/Mutation';
 import Post from './resolvers/Post';
 import Query from './resolvers/Query';
-import Subscription from './resolvers/Subscription';
 import User from './resolvers/User';
 
 const schema = loadSchemaSync(join(__dirname, './schema.graphql'), {
@@ -18,7 +17,6 @@ const schema = loadSchemaSync(join(__dirname, './schema.graphql'), {
 const resolvers = {
   Query,
   Mutation,
-  Subscription,
   Post,
   User,
   Comment

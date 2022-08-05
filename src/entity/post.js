@@ -3,7 +3,7 @@ import getUserId from '../utils/getUserId';
 import verifyPost from '../utils/verifyPost';
 
 export default {
-  createPost: async (_, { data }, { prismaSelect, pubsub, request }, info) => {
+  createPost: async (_, { data }, { prismaSelect, request }, info) => {
     const userId = getUserId(request);
 
     const select = prismaSelect(info);
@@ -27,17 +27,9 @@ export default {
       ...select
     });
 
-    if (post.published)
-      pubsub.publish('post', {
-        post: {
-          mutation: 'CREATED',
-          data: post
-        }
-      });
-
     return post;
   },
-  deletePost: async (_, args, { prismaSelect, pubsub, request }, info) => {
+  deletePost: async (_, args, { prismaSelect, request }, info) => {
     try {
       // get the user id from jwt token
       const userId = getUserId(request);
@@ -49,14 +41,6 @@ export default {
       const select = prismaSelect(info);
       const post = await prisma.post.delete({ where: { id: args.id }, ...select });
 
-      if (post.published) {
-        pubsub.publish('post', {
-          post: {
-            mutation: 'DELETED',
-            data: post
-          }
-        });
-      }
       return post;
     } catch (error) {
       if (error.code === 'P2025') throw new Error('Post not found.');

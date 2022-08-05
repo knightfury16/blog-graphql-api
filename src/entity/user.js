@@ -9,6 +9,7 @@ export default {
   createUser: async (_, args, { prismaSelect }, info) => {
     // removing token from info
     const select = prismaSelect(info);
+    console.log('select', select);
     if (select.select.token) {
       delete select.select.token;
       select.select = select.select.user.select;
@@ -43,7 +44,6 @@ export default {
     const isMatch = await bcrypt.compare(data.password, user.password);
 
     if (!isMatch) throw new Error('Unable to authenticate!');
-
 
     return {
       user,
