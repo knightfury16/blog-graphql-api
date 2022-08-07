@@ -2,11 +2,10 @@ import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import { scemaWithResolver } from './schema';
 import { prismaSelect } from './utils/prismaSelect';
-import morgan from 'morgan';
+import { myPlugin } from './loggerPlugin';
 
 const main = async () => {
   const app = express();
-  app.use(morgan('dev'));
 
   const server = new ApolloServer({
     schema: scemaWithResolver,
@@ -15,7 +14,8 @@ const main = async () => {
         prismaSelect,
         request
       };
-    }
+    },
+    plugins: [myPlugin]
   });
 
   await server.start();
