@@ -3,9 +3,16 @@ import { ApolloServer } from 'apollo-server-express';
 import { scemaWithResolver } from './schema';
 import { prismaSelect } from './utils/prismaSelect';
 import { myPlugin } from './loggerPlugin';
+import cors from 'cors';
 
 const main = async () => {
   const app = express();
+  app.use(
+    cors({
+      origin: 'http://localhost:3000',
+      credentials: true
+    })
+  );
 
   const server = new ApolloServer({
     schema: scemaWithResolver,
@@ -20,7 +27,7 @@ const main = async () => {
 
   await server.start();
 
-  server.applyMiddleware({ app });
+  server.applyMiddleware({ app, cors: false });
 
   const port = process.env.PORT;
   app.listen(port, () => {
