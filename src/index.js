@@ -25,6 +25,8 @@ const main = async () => {
     plugins: [myPlugin],
     formatError: error => {
       const { field, message } = error.originalError;
+      console.log('field: ', field);
+      // console.log("message: ", message)
       return { field, message };
     }
   });
