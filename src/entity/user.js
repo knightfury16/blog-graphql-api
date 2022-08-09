@@ -39,11 +39,11 @@ export default {
 
     const user = await prisma.user.findUnique({ where: { email: data.email }, ...select });
 
-    if (!user) throw new Error('Unable to authenticate!');
+    if (!user) throw new CustomError({ message: 'email does not exist', field: 'email' });
 
     const isMatch = await bcrypt.compare(data.password, user.password);
 
-    if (!isMatch) throw new Error('Unable to authenticate!');
+    if (!isMatch) throw new CustomError({ message: 'incorrect password', field: 'password' });
 
     return {
       user,
