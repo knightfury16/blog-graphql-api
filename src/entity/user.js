@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import getUserId from '../utils/getUserId';
 import generateToken from '../utils/generateToken';
 import { userValidationSchema } from '../utils/userValidationSchema';
+import { CustomError } from '../utils/CustomError';
 
 export default {
   createUser: async (_, args, { prismaSelect }, info) => {
@@ -12,7 +13,7 @@ export default {
 
     const { error, value: data } = userValidationSchema.validate(args.data);
 
-    if (error) throw new Error(error);
+    if (error) throw new CustomError(error);
 
     data.password = await bcrypt.hash(data.password, 10);
 

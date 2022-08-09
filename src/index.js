@@ -22,7 +22,11 @@ const main = async () => {
         request
       };
     },
-    plugins: [myPlugin]
+    plugins: [myPlugin],
+    formatError: error => {
+      const { field, message } = error.originalError;
+      return { field, message };
+    }
   });
 
   await server.start();
