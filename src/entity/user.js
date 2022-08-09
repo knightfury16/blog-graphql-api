@@ -4,8 +4,8 @@ import bcrypt from 'bcryptjs';
 import getUserId from '../utils/getUserId';
 import generateToken from '../utils/generateToken';
 import { userValidationSchema } from '../utils/userValidationSchema';
-import { CustomError } from '../utils/buildUsefulErrorObject';
 import { GraphQLError } from 'graphql';
+import { CustomError } from '../utils/CustomError';
 
 export default {
   createUser: async (_, args, { prismaSelect }, info) => {
@@ -14,7 +14,7 @@ export default {
 
     const { error, value: data } = userValidationSchema.validate(args.data);
 
-    if (error) throw new CustomError(error);
+    if (error) throw new CustomError(error, true);
 
     data.password = await bcrypt.hash(data.password, 10);
 
@@ -27,9 +27,7 @@ export default {
     } catch (error) {
       // email not unique
       if (error.code === 'P2002') {
-        const err = new Error('email already exists');
-        err.field = 'email';
-        throw err;
+        throw new CustomError({ message: 'email taken', field: 'email' });
       }
       throw new Error(error);
     }
