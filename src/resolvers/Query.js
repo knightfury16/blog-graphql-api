@@ -134,7 +134,7 @@ const Query = {
   },
 
   post: async (_, { id }, { prismaSelect, request }, info) => {
-    const userId = getUserId(request, false);
+    // const userId = getUserId(request, false);
 
     const select = prismaSelect(info);
 
@@ -145,16 +145,7 @@ const Query = {
             id: { equals: id }
           },
           {
-            OR: [
-              {
-                published: { equals: true }
-              },
-              {
-                author: {
-                  id: { equals: userId }
-                }
-              }
-            ]
+            published: { equals: true }
           }
         ]
       },
