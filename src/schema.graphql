@@ -9,7 +9,7 @@ type Query {
   post(id: ID!): Post!
 
   "Returns all the post"
-  posts(query: String, take: Int, skip: Int): [Post!]!
+  posts(query: String, take: Int, skip: Int): PostQueryPayload!
 
   myPosts(query: String, take: Int, skip: Int): [Post!]!
 
@@ -70,6 +70,11 @@ input UpdateCommentInput {
 type AuthPayload {
   user: User!
   token: String!
+}
+
+type PostQueryPayload {
+  posts: [Post!]!
+  isMoreData: Boolean
 }
 
 type User {

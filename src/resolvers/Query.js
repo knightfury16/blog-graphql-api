@@ -30,18 +30,23 @@ const Query = {
   },
 
   posts: async (_, args, { prismaSelect }, info) => {
-    const select = prismaSelect(info);
+    // const select = prismaSelect(info);
+
+    const select = prismaSelect(info, true).valueOf('posts', 'Post');
+
+    const take = args.take + 1 || undefined;
+    let response;
 
     if (!args.query)
-      return await prisma.post.findMany({
+      response = await prisma.post.findMany({
         where: { published: { equals: true } },
         ...select,
         orderBy: { createdAt: 'desc' },
-        take: args.take,
+        take,
         skip: args.skip
       });
 
-    return await prisma.post.findMany({
+    response = await prisma.post.findMany({
       where: {
         AND: [
           {
@@ -67,9 +72,13 @@ const Query = {
       },
       ...select,
       orderBy: { createdAt: 'desc' },
-      take: args.take,
+      take,
       skip: args.skip
     });
+    return {
+      posts: response.slice(0, response.length),
+      isMoreData: response.length === take ? true : false
+    };
   },
 
   myPosts: async (_, { query, take, skip }, { prismaSelect, request }, info) => {
