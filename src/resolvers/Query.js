@@ -76,7 +76,7 @@ const Query = {
       skip: args.skip
     });
     return {
-      posts: response.slice(0, response.length),
+      posts: response.slice(0, response.length - 1),
       isMoreData: response.length === take ? true : false
     };
   },
