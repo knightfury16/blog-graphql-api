@@ -6,7 +6,7 @@ const prisma = new PrismaClient({
 });
 
 async function main() {
-  for (let index = 0; index < 10; index++) {
+  for (let index = 0; index < 20; index++) {
     await prisma.user.create({
       data: {
         name: faker.name.findName(),
@@ -15,9 +15,7 @@ async function main() {
         posts: {
           create: {
             title: faker.animal.bear(),
-            body: faker.fake(
-              'I flipped the coin an got: {{helpers.arrayElement(["heads", "tails"])}}'
-            ),
+            body: faker.lorem.paragraphs(5),
             published: faker.datatype.boolean()
           }
         }
